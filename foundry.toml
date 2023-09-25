@@ -4,3 +4,7 @@ out = "out"
 libs = ["lib"]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+remappings = [
+    # For some reason forge doesn't auto-detect this one
+    'solady/=lib/aloe-ii/core/lib/solady/src'
+]
