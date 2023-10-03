@@ -8,3 +8,19 @@ remappings = [
     # For some reason forge doesn't auto-detect this one
     'solady/=lib/aloe-ii/core/lib/solady/src'
 ]
+
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = false
+int_types = 'long'
+multiline_func_header = 'params_first'
+quote_style = 'double'
+number_underscore = 'preserve'
+override_spacing = true
+
+[rpc_endpoints]
+mainnet = "${RPC_URL_MAINNET}"
+optimism = "${RPC_URL_OPTIMISM}"
+arbitrum = "${RPC_URL_ARBITRUM}"
+base = "${RPC_URL_BASE}"

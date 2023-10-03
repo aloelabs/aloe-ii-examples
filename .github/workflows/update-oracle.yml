@@ -5,7 +5,7 @@ run-name: Poking the volatility oracle
 on:
   workflow_dispatch:
   schedule:
-  - cron: '30 0,1,6,7,12,13,18,19 * * *'
+  - cron: '30 0,6,12,18 * * *'
 
 jobs:
   send-txn:
@@ -19,15 +19,11 @@ jobs:
         with:
           version: nightly
       - name: build
-        run: |
-          cd periphery
-          forge build
+        run: forge build
       - name: run
         env:
           RPC_URL_OPTIMISM: ${{ secrets.RPC_URL_OPTIMISM }}
           RPC_URL_ARBITRUM: ${{ secrets.RPC_URL_ARBITRUM }}
           RPC_URL_BASE: ${{ secrets.RPC_URL_BASE }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        run: |
-          cd periphery
-          forge script script/UpdateOracle.s.sol:UpdateOracleScript --broadcast
+          PRIVATE_KEY_UPDATE_ORACLE: ${{ secrets.PRIVATE_KEY_UPDATE_ORACLE }}
+        run: forge script script/UpdateOracle.s.sol:UpdateOracleScript --broadcast
