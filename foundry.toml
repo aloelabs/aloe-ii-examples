@@ -3,6 +3,13 @@ src = "src"
 out = "out"
 libs = ["lib"]
 
+solc_version = '0.8.23'
+evm_version = 'paris'
+via_ir = true
+optimizer = true
+optimizer_runs = 65536
+gas_reports = []
+
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 remappings = [
     # For some reason forge doesn't auto-detect this one

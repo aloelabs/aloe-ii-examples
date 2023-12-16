@@ -1,0 +1,32 @@
+name: liquidate
+
+run-name: Watching for unhealthy accounts
+
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: '15 * * * *'
+
+jobs:
+  watching:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: build
+        run: forge build
+      - name: run
+        env:
+          RPC_URL_MAINNET: ${{ secrets.RPC_URL_MAINNET }}
+          RPC_URL_OPTIMISM: ${{ secrets.RPC_URL_OPTIMISM }}
+          RPC_URL_ARBITRUM: ${{ secrets.RPC_URL_ARBITRUM }}
+          RPC_URL_BASE: ${{ secrets.RPC_URL_BASE }}
+          PRIVATE_KEY_LIQUIDATE: ${{ secrets.PRIVATE_KEY_LIQUIDATE }}
+          LIQUIDATE_SCRIPT_INTERVAL: ${{ vars.LIQUIDATE_SCRIPT_INTERVAL }}
+        run: |
+          ./liquidate.sh "$(expr 3600 / $LIQUIDATE_SCRIPT_INTERVAL)" $LIQUIDATE_SCRIPT_INTERVAL
