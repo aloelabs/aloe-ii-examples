@@ -11,24 +11,21 @@ contract UpdateOracleScript is KeeperScript {
     function setUp() public {}
 
     function run() external {
-        vm.createSelectFork(vm.rpcUrl("mainnet"));
-        vm.startBroadcast(vm.envUint("PRIVATE_KEY_UPDATE_ORACLE"));
-        oracleUpdateHelper.update(poolsMainnet);
-        vm.stopBroadcast();
+        IUniswapV3Pool[] storage pools;
+        if (block.chainid == 1) {
+            pools = poolsMainnet;
+        } else if (block.chainid == 10) {
+            pools = poolsOptimism;
+        } else if (block.chainid == 42161) {
+            pools = poolsArbitrum;
+        } else if (block.chainid == 8453) {
+            pools = poolsBase;
+        } else {
+            revert("No pools array for this chain");
+        }
 
-        vm.createSelectFork(vm.rpcUrl("optimism"));
         vm.startBroadcast(vm.envUint("PRIVATE_KEY_UPDATE_ORACLE"));
-        oracleUpdateHelper.update(poolsOptimism);
-        vm.stopBroadcast();
-
-        vm.createSelectFork(vm.rpcUrl("arbitrum"));
-        vm.startBroadcast(vm.envUint("PRIVATE_KEY_UPDATE_ORACLE"));
-        oracleUpdateHelper.update(poolsArbitrum);
-        vm.stopBroadcast();
-
-        vm.createSelectFork(vm.rpcUrl("base"));
-        vm.startBroadcast(vm.envUint("PRIVATE_KEY_UPDATE_ORACLE"));
-        oracleUpdateHelper.update(poolsBase);
+        oracleUpdateHelper.update(pools);
         vm.stopBroadcast();
     }
 }
