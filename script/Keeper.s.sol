@@ -11,7 +11,8 @@ abstract contract KeeperScript is Script {
     Factory constant FACTORY = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
 
     IUniswapV3Pool[] poolsMainnet = [
-        IUniswapV3Pool(0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640) // USDC/WETH 0.05%
+        IUniswapV3Pool(0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640), // USDC/WETH 0.05%
+        IUniswapV3Pool(0x2E4784446A0a06dF3D1A040b03e1680Ee266c35a) // CVX/WETH 1.0%
     ];
 
     IUniswapV3Pool[] poolsOptimism = [
