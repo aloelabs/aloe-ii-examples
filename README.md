@@ -1,66 +1,56 @@
-## Foundry
+# Aloe II Examples
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Examples elaborating various uses of [Aloe II](https://github.com/aloelabs/aloe-ii).
 
-Foundry consists of:
+## Disclaimer
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
+This is experimental software and is provided on an "as is" and "as available" basis. We **do not provide any
+warranties** and **will not be liable for any loss incurred** through any use of this codebase.
 
 ## Usage
 
-### Build
+Unlike other Foundry repositories, this is not intended to be `forge install`ed. The easiest way to build off it is to clone it and modify things in-place.
 
-```shell
-$ forge build
+If you don't have Foundry installed, follow the instructions [here](https://book.getfoundry.sh/getting-started/installation).
+
+```bash
+# Clone the repository
+git clone https://github.com/aloelabs/aloe-ii-examples.git
+cd aloe-ii-examples
+# Install dependencies
+git submodule update --init --recursive
+# Build contracts
+forge build
 ```
 
-### Test
+Once everything is installed, there are two scripts you can run. Both assume you have a `.env` file formatted like the [.env.template](/.env.template).
 
-```shell
-$ forge test
+### Liquidate
+
+The [liquidation script](/script/Liquidate.s.sol) gets a list of `Borrower`s on the specified chain using a `cast logs` command (thus necessitating the `--ffi` flag). It checks the health of each `Borrower` and `warns` or `liquidates` the unhealthy ones as appropriate.
+
+```bash
+source .env
+
+export LIQUIDATOR_CHAIN='mainnet'
+forge script script/Liquidate.s.sol:LiquidateScript --chain $LIQUIDATOR_CHAIN --rpc-url $LIQUIDATOR_CHAIN -vv --ffi --broadcast
 ```
 
-### Format
+### Update Oracle
 
-```shell
-$ forge fmt
+The [update oracle script](/script/UpdateOracle.s.sol) pokes the `VolatilityOracle` for all pools listed in [`Keeper.s.sol`](/script/Keeper.s.sol). New fee growth globals (for each pool) can be stored
+once every 4 hours－more frequent calls are no-ops. The implied volatility will be updated if there is a fee growth globals data point between 70 and 74 hours old.
+
+```bash
+source .env
+
+forge script script/UpdateOracle.s.sol:UpdateOracleScript --chain mainnet --rpc-url mainnet -vv --broadcast
 ```
 
-### Gas Snapshots
+## Future Work
 
-```shell
-$ forge snapshot
-```
+We plan to update this repository with additional examples, such as:
 
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+- Script for getting the `oracleSeed`
+- An `IManager` that fulfills Uniswap X orders using Aloe II liquidity
+- Enrollment flow for couriers
