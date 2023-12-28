@@ -37,4 +37,18 @@ abstract contract KeeperScript is Script {
         IUniswapV3Pool(0x10648BA41B8565907Cfa1496765fA4D95390aa0d), // cbETH/WETH 0.05%
         IUniswapV3Pool(0x9E37cb775a047Ae99FC5A24dDED834127c4180cD) // BALD/WETH 1.0%
     ];
+
+    function _getPoolsFor(uint256 chainId) internal view returns (IUniswapV3Pool[] storage pools) {
+        if (chainId == 1) {
+            pools = poolsMainnet;
+        } else if (chainId == 10) {
+            pools = poolsOptimism;
+        } else if (chainId == 42161) {
+            pools = poolsArbitrum;
+        } else if (chainId == 8453) {
+            pools = poolsBase;
+        } else {
+            revert("No pools array for this chain");
+        }
+    }
 }
