@@ -12,7 +12,16 @@ abstract contract KeeperScript is Script {
 
     IUniswapV3Pool[] poolsMainnet = [
         IUniswapV3Pool(0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640), // USDC/WETH 0.05%
-        IUniswapV3Pool(0x2E4784446A0a06dF3D1A040b03e1680Ee266c35a) // CVX/WETH 1.0%
+        IUniswapV3Pool(0x4585FE77225b41b697C938B018E2Ac67Ac5a20c0), // WBTC/WETH 0.05%
+        IUniswapV3Pool(0x109830a1AAaD605BbF02a9dFA7B0B92EC2FB7dAa), // wstETH/WETH 0.01%
+        IUniswapV3Pool(0x99ac8cA7087fA4A2A1FB6357269965A2014ABc35) // WBTC/USDC 0.30%
+        // IUniswapV3Pool(0xe8c6c9227491C0a8156A0106A0204d881BB7E531), // MKR/WETH 0.30%
+        // IUniswapV3Pool(0xa3f558aebAecAf0e11cA4b2199cC5Ed341edfd74), // LDO/WETH 0.30%
+        // IUniswapV3Pool(0x1d42064Fc4Beb5F8aAF85F4617AE8b3b5B8Bd801), // UNI/WETH 0.30%
+        // IUniswapV3Pool(0x290A6a7460B308ee3F19023D2D00dE604bcf5B42), // MATIC/WETH 0.30%
+        // IUniswapV3Pool(0xe42318eA3b998e8355a3Da364EB9D48eC725Eb45), // WETH/RPL 0.30%
+        // IUniswapV3Pool(0xAc4b3DacB91461209Ae9d41EC517c2B9Cb1B7DAF), // APE/WETH 0.30%
+        // IUniswapV3Pool(0x2E4784446A0a06dF3D1A040b03e1680Ee266c35a) // CVX/WETH 1.0%
     ];
 
     IUniswapV3Pool[] poolsOptimism = [
