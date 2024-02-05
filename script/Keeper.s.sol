@@ -31,7 +31,8 @@ abstract contract KeeperScript is Script {
         IUniswapV3Pool(0x85C31FFA3706d1cce9d525a00f1C7D4A2911754c), // WETH/WBTC 0.05%
         IUniswapV3Pool(0xbf16ef186e715668AA29ceF57e2fD7f9D48AdFE6), // USDC/DAI 0.01%
         IUniswapV3Pool(0x1C3140aB59d6cAf9fa7459C6f83D4B52ba881d36), // OP/USDC 0.30%
-        IUniswapV3Pool(0x535541F1aa08416e69Dc4D610131099FA2Ae7222) // WETH/PERP 0.30%
+        IUniswapV3Pool(0x535541F1aa08416e69Dc4D610131099FA2Ae7222), // WETH/PERP 0.30%
+        IUniswapV3Pool(0x22F5F609C554B89792B14B91BAdCCaF52c156E95) // POOL/WETH 1.0%
     ];
 
     IUniswapV3Pool[] poolsArbitrum = [
