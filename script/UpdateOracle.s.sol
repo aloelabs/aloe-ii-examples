@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
+import "forge-std/Script.sol";
 import {FixedPointMathLib} from "solady/utils/FixedPointMathLib.sol";
 
 import {OracleUpdateHelper, IUniswapV3Pool} from "src/OracleUpdateHelper.sol";
@@ -21,13 +22,14 @@ contract UpdateOracleScript is KeeperScript {
         uint256 j;
         for (uint256 i; i < pools.length; i++) {
             oracleUpdateHelper.ORACLE().update(pools[i], 1 << 32);
-            (uint40 time, , uint256 oldIV, uint256 newIV) = oracleUpdateHelper.ORACLE().lastWrites(pools[i]);
+            (, uint40 time, uint256 oldIV, uint256 newIV) = oracleUpdateHelper.ORACLE().lastWrites(pools[i]);
 
             if (time != block.timestamp) continue;
 
             if (FixedPointMathLib.abs(int256(newIV) - int256(oldIV)) > updateThreshold) {
                 poolsToUpdate[j] = pools[i];
                 j++;
+                console2.log(address(pools[i]));
             }
         }
 
