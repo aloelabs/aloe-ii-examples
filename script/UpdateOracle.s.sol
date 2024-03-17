@@ -21,15 +21,13 @@ contract UpdateOracleScript is KeeperScript {
         IUniswapV3Pool[] memory poolsToUpdate = new IUniswapV3Pool[](pools.length);
         uint256 j;
         for (uint256 i; i < pools.length; i++) {
-            (, uint40 oldTime, , ) = oracleUpdateHelper.ORACLE().lastWrites(pools[i]);
+            (, uint40 time, , ) = oracleUpdateHelper.ORACLE().lastWrites(pools[i]);
 
-            if (block.timestamp - oldTime < 1 days) {
-                oracleUpdateHelper.ORACLE().update(pools[i], 1 << 32);
-                (, uint40 time, uint256 oldIV, uint256 newIV) = oracleUpdateHelper.ORACLE().lastWrites(pools[i]);
+            if (block.timestamp - time < 4 hours) continue;
 
-                if (time != block.timestamp) continue;
-                if (FixedPointMathLib.abs(int256(newIV) - int256(oldIV)) < updateThreshold) continue;
-            }
+            oracleUpdateHelper.ORACLE().update(pools[i], 1 << 32);
+            (, time, , ) = oracleUpdateHelper.ORACLE().lastWrites(pools[i]);
+            if (time != block.timestamp) continue;
 
             poolsToUpdate[j] = pools[i];
             j++;

@@ -5,7 +5,7 @@ run-name: Poking the volatility oracle
 on:
   workflow_dispatch:
   schedule:
-  - cron: '23 */5 * * *'
+  - cron: '23 */6 * * *'
 
 jobs:
   send-txn:
