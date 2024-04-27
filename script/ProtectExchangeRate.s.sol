@@ -7,7 +7,7 @@ import {Lender, ERC20} from "aloe-ii-core/Lender.sol";
 
 import {OracleUpdateHelper, IUniswapV3Pool} from "src/OracleUpdateHelper.sol";
 
-import {KeeperScript} from "./Keeper.s.sol";
+import "./Keeper.s.sol";
 
 contract ProtectExchangeRateScript is KeeperScript {
     address constant burnAddress = 0xdeAD00000000000000000000000000000000dEAd;
@@ -15,10 +15,11 @@ contract ProtectExchangeRateScript is KeeperScript {
     function setUp() public {}
 
     function run() external {
+        Factory factory = _factory[block.chainid];
         IUniswapV3Pool[] storage pools = _getPoolsFor(block.chainid);
 
         for (uint256 i = 0; i < pools.length; i++) {
-            (Lender lender0, Lender lender1, ) = FACTORY.getMarket(pools[i]);
+            (Lender lender0, Lender lender1, ) = factory.getMarket(pools[i]);
             uint256 threshold = 0.99e18;
 
             uint256 exchangeRate;

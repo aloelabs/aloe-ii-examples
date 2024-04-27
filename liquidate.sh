@@ -9,6 +9,8 @@ for ((i = 1; i <= $1; i++)); do
     LIQUIDATOR_CHAIN='optimism' forge script script/Liquidate.s.sol:LiquidateScript --chain optimism --rpc-url optimism -vv --ffi --broadcast &
     LIQUIDATOR_CHAIN='arbitrum' forge script script/Liquidate.s.sol:LiquidateScript --chain arbitrum --rpc-url arbitrum -vv --ffi --broadcast &
     LIQUIDATOR_CHAIN='base' forge script script/Liquidate.s.sol:LiquidateScript --chain base --rpc-url base -vv --ffi --broadcast &
+    LIQUIDATOR_CHAIN='linea' forge script script/Liquidate.s.sol:LiquidateScript --chain linea --rpc-url linea -vv --ffi --broadcast &
+    LIQUIDATOR_CHAIN='scroll' forge script script/Liquidate.s.sol:LiquidateScript --chain scroll --rpc-url scroll -vv --ffi --broadcast &
     wait  # Wait for background processes to finish
 
     sleep "$2"

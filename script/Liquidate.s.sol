@@ -15,12 +15,22 @@ import {Liquidator, ERC20} from "src/Liquidator.sol";
 contract LiquidateScript is Script {
     using stdJson for string;
 
-    Factory constant FACTORY = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
     bytes32 constant CREATE_BORROWER_TOPIC0 = 0x1ff0a9a76572c6e0f2f781872c1e45b4bab3a0d90df274ebf884b4c11e3068f4;
     Liquidator constant LIQUIDATOR = Liquidator(payable(0xC8eD78424824Ff7eA3602733909eC57c7d7F7301));
 
+    mapping(uint256 => Factory) internal _factory;
+
+    constructor() {
+        _factory[1] = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
+        _factory[10] = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
+        _factory[42161] = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
+        _factory[8453] = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
+        _factory[59144] = Factory(0x00000000333288eBA83426245D144B966Fd7e82E);
+        _factory[534352] = Factory(0x00000000333288eBA83426245D144B966Fd7e82E);
+    }
+
     function run() external {
-        string memory json = _getLogs(vm.envString("LIQUIDATOR_CHAIN"), address(FACTORY), CREATE_BORROWER_TOPIC0);
+        string memory json = _getLogs(vm.envString("LIQUIDATOR_CHAIN"), address(_factory[block.chainid]), CREATE_BORROWER_TOPIC0);
         address[] memory borrowers = _decodeBorrowers(json);
         uint256 count = borrowers.length;
 

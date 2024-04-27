@@ -6,9 +6,28 @@ import "forge-std/Script.sol";
 import {IUniswapV3Pool} from "v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 
 import {Factory} from "aloe-ii-core/Factory.sol";
+import {VolatilityOracle} from "aloe-ii-core/VolatilityOracle.sol";
 
 abstract contract KeeperScript is Script {
-    Factory constant FACTORY = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
+    mapping(uint256 => Factory) internal _factory;
+
+    mapping(uint256 => VolatilityOracle) internal _oracle;
+
+    constructor() {
+        _factory[1] = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
+        _factory[10] = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
+        _factory[42161] = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
+        _factory[8453] = Factory(0x000000009efdB26b970bCc0085E126C9dfc16ee8);
+        _factory[59144] = Factory(0x00000000333288eBA83426245D144B966Fd7e82E);
+        _factory[534352] = Factory(0x00000000333288eBA83426245D144B966Fd7e82E);
+
+        _oracle[1] = VolatilityOracle(0x0000000030d51e39a2dDDb5Db50F9d74a289DFc3);
+        _oracle[10] = VolatilityOracle(0x0000000030d51e39a2dDDb5Db50F9d74a289DFc3);
+        _oracle[42161] = VolatilityOracle(0x0000000030d51e39a2dDDb5Db50F9d74a289DFc3);
+        _oracle[8453] = VolatilityOracle(0x0000000030d51e39a2dDDb5Db50F9d74a289DFc3);
+        _oracle[59144] = VolatilityOracle(0x00000000570385b76719a95Fdf27B9c7fB5Ff299);
+        _oracle[534352] = VolatilityOracle(0x00000000570385b76719a95Fdf27B9c7fB5Ff299);
+    }
 
     IUniswapV3Pool[] poolsMainnet = [
         IUniswapV3Pool(0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640), // USDC/WETH 0.05%
@@ -57,6 +76,18 @@ abstract contract KeeperScript is Script {
         IUniswapV3Pool(0xc9034c3E7F58003E6ae0C8438e7c8f4598d5ACAA) // WETH/DEGEN 0.30%
     ];
 
+    IUniswapV3Pool[] poolsLinea = [
+        IUniswapV3Pool(0xc48622190a6B91d64ee7459C62fadE9AbE61b48a), // USDC/WETH 0.05%
+        IUniswapV3Pool(0xa22206521A460aA6B21a089c3b48FFd0C79d5fD5), // WBTC/WETH 0.05%
+        IUniswapV3Pool(0x5856EDF9212bdceC74301ec78AFc573B62D6A283) // USDC/USDT 0.01%
+    ];
+
+    IUniswapV3Pool[] poolsScroll = [
+        IUniswapV3Pool(0xf1783F3377b3A70465C193eF33942c0803121ba0), // USDC/USDT 0.01%
+        IUniswapV3Pool(0x813Df550a32d4A9d42010D057386429ad2328ED9), // USDC/WETH 0.05%
+        IUniswapV3Pool(0x3Cc5375F08D5DF15611C3a446D31fA99a08BD182) // WBTC/WETH 0.05%
+    ];
+
     function _getPoolsFor(uint256 chainId) internal view returns (IUniswapV3Pool[] storage pools) {
         if (chainId == 1) {
             pools = poolsMainnet;
@@ -66,6 +97,10 @@ abstract contract KeeperScript is Script {
             pools = poolsArbitrum;
         } else if (chainId == 8453) {
             pools = poolsBase;
+        } else if (chainId == 59144) {
+            pools = poolsLinea;
+        } else if (chainId == 534352) {
+            pools = poolsScroll;
         } else {
             revert("No pools array for this chain");
         }

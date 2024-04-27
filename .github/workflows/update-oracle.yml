@@ -26,10 +26,13 @@ jobs:
           RPC_URL_OPTIMISM: ${{ secrets.RPC_URL_OPTIMISM }}
           RPC_URL_ARBITRUM: ${{ secrets.RPC_URL_ARBITRUM }}
           RPC_URL_BASE: ${{ secrets.RPC_URL_BASE }}
+          RPC_URL_LINEA: ${{ secrets.RPC_URL_LINEA }}
+          RPC_URL_SCROLL: ${{ secrets.RPC_URL_SCROLL }}
           PRIVATE_KEY_UPDATE_ORACLE: ${{ secrets.PRIVATE_KEY_UPDATE_ORACLE }}
         run: |
-          timeout -k 120s 120s forge script script/UpdateOracle.s.sol:UpdateOracleScript --chain mainnet --rpc-url mainnet -vv --broadcast &
           timeout -k 120s 120s forge script script/UpdateOracle.s.sol:UpdateOracleScript --chain optimism --rpc-url optimism -vv --broadcast &
           timeout -k 120s 120s forge script script/UpdateOracle.s.sol:UpdateOracleScript --chain arbitrum --rpc-url arbitrum -vv --broadcast &
           timeout -k 120s 120s forge script script/UpdateOracle.s.sol:UpdateOracleScript --chain base --rpc-url base -vv --broadcast &
+          timeout -k 120s 120s forge script script/UpdateOracle.s.sol:UpdateOracleScript --chain linea --rpc-url linea -vv --broadcast &
+          timeout -k 120s 120s forge script script/UpdateOracle.s.sol:UpdateOracleScript --chain scroll --rpc-url scroll -vv --broadcast &
           wait

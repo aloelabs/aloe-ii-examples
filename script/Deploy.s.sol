@@ -10,9 +10,7 @@ import {UniswapPositionAppraiser, IUniswapPositionNFT} from "src/UniswapPosition
 contract DeployScript is Script {
     function run() external {
         vm.startBroadcast(vm.envUint("PRIVATE_KEY_UPDATE_ORACLE"));
-        new OracleUpdateHelper{salt: 0x0000000000000000000000000000000000000000A10EA10EA10EA10EA10EA10E}(
-            VolatilityOracle(0x0000000030d51e39a2dDDb5Db50F9d74a289DFc3)
-        );
+        new OracleUpdateHelper{salt: 0x0000000000000000000000000000000000000000A10EA10EA10EA10EA10EA10E}();
         vm.stopBroadcast();
 
         vm.startBroadcast(vm.envUint("PRIVATE_KEY_LIQUIDATE"));

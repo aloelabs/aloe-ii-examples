@@ -26,6 +26,8 @@ jobs:
           RPC_URL_OPTIMISM: ${{ secrets.RPC_URL_OPTIMISM }}
           RPC_URL_ARBITRUM: ${{ secrets.RPC_URL_ARBITRUM }}
           RPC_URL_BASE: ${{ secrets.RPC_URL_BASE }}
+          RPC_URL_LINEA: ${{ secrets.RPC_URL_LINEA }}
+          RPC_URL_SCROLL: ${{ secrets.RPC_URL_SCROLL }}
           PRIVATE_KEY_LIQUIDATE: ${{ secrets.PRIVATE_KEY_LIQUIDATE }}
           LIQUIDATE_SCRIPT_INTERVAL: ${{ vars.LIQUIDATE_SCRIPT_INTERVAL }}
         run: |
