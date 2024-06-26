@@ -19,7 +19,7 @@ contract ProtectExchangeRateScript is KeeperScript {
         IUniswapV3Pool[] storage pools = _getPoolsFor(block.chainid);
 
         for (uint256 i = 0; i < pools.length; i++) {
-            (Lender lender0, Lender lender1, ) = factory.getMarket(pools[i]);
+            (Lender lender0, Lender lender1,) = factory.getMarket(pools[i]);
             uint256 threshold = 0.99e18;
 
             uint256 exchangeRate;
@@ -56,7 +56,7 @@ contract ProtectExchangeRateScript is KeeperScript {
         ERC20 asset = lender.asset();
         uint256 decimals = asset.decimals();
         uint256 amount = 10 ** decimals;
-        
+
         return ((lender.convertToShares(amount) * 1e18) / amount, lender.underlyingBalance(burnAddress) < 9999);
     }
 }

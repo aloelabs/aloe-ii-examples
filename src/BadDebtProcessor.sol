@@ -6,8 +6,7 @@ import {IUniswapV3FlashCallback} from "v3-core/contracts/interfaces/callback/IUn
 import {IUniswapV3SwapCallback} from "v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
 import {IUniswapV3Pool} from "v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 
-import {LIQUIDATION_GRACE_PERIOD} from "aloe-ii-core/libraries/constants/Constants.sol";
-import {BalanceSheet, AuctionAmounts, Assets, Prices} from "aloe-ii-core/libraries/BalanceSheet.sol";
+import {AuctionAmounts} from "aloe-ii-core/libraries/BalanceSheet.sol";
 import {TickMath} from "aloe-ii-core/libraries/TickMath.sol";
 
 import {Borrower, ILiquidator} from "aloe-ii-core/Borrower.sol";
@@ -18,16 +17,29 @@ contract BadDebtProcessor is ILiquidator, IUniswapV3FlashCallback, IUniswapV3Swa
 
     receive() external payable {}
 
-    function process(Lender lender, Borrower borrower, IUniswapV3Pool flashPool, uint256 slippage) external {
-        ERC20 asset = lender.asset();
+    function processWithPermit(
+        Lender lender,
+        Borrower borrower,
+        IUniswapV3Pool flashPool,
+        uint256 slippage,
+        uint256 allowance,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        lender.permit(msg.sender, address(this), allowance, deadline, v, r, s);
+        process(lender, borrower, flashPool, slippage);
+    }
 
+    function process(Lender lender, Borrower borrower, IUniswapV3Pool flashPool, uint256 slippage) public {
         uint256 withdrawAmount = lender.underlyingBalance(msg.sender);
         // We assume `withdrawAmount > lender.lastBalance()`, otherwise there's no reason to use this fn
-        uint256 repayAmount = (withdrawAmount - lender.lastBalance()) * 100_010 / 100_000;
-        uint256 closeFactor = ((repayAmount * 10_000) / lender.borrowBalance(address(borrower)));
+        uint256 repayAmount = (withdrawAmount - lender.lastBalance()) * 10_001 / 10_000;
+        uint256 closeFactor = (repayAmount * 10_000) / lender.borrowBalance(address(borrower));
 
         bytes memory data = abi.encode(borrower, closeFactor, msg.sender, repayAmount, slippage);
-        if (address(asset) == flashPool.token0()) {
+        if (address(lender.asset()) == flashPool.token0()) {
             flashPool.flash(address(this), repayAmount, 0, data);
         } else {
             flashPool.flash(address(this), 0, repayAmount, data);
@@ -37,7 +49,8 @@ contract BadDebtProcessor is ILiquidator, IUniswapV3FlashCallback, IUniswapV3Swa
     function uniswapV3FlashCallback(uint256 fee0, uint256 fee1, bytes calldata data) external {
         require(fee0 == 0 || fee1 == 0, "Incompatible situation");
 
-        (Borrower borrower, uint256 closeFactor, address withdrawFrom, uint256 flashAmount, uint256 slippage) = abi.decode(data, (Borrower, uint256, address, uint256, uint256));
+        (Borrower borrower, uint256 closeFactor, address withdrawFrom, uint256 flashAmount, uint256 slippage) =
+            abi.decode(data, (Borrower, uint256, address, uint256, uint256));
         borrower.liquidate(this, data, closeFactor, 1 << 32);
 
         ERC20 flashToken;
@@ -59,7 +72,9 @@ contract BadDebtProcessor is ILiquidator, IUniswapV3FlashCallback, IUniswapV3Swa
             int256 swapped;
             if (exactAmountOut < 0) {
                 // Need to swap `token1` (the one we received in during liquidation) for `token0` (which is `flashToken`)
-                (, swapped) = borrower.UNISWAP_POOL().swap(address(this), false, exactAmountOut, TickMath.MAX_SQRT_RATIO - 1, bytes(""));
+                (, swapped) = borrower.UNISWAP_POOL().swap(
+                    address(this), false, exactAmountOut, TickMath.MAX_SQRT_RATIO - 1, bytes("")
+                );
                 require(uint256(swapped) < recovered * slippage / 10_000, "slippage");
             }
 
@@ -72,7 +87,9 @@ contract BadDebtProcessor is ILiquidator, IUniswapV3FlashCallback, IUniswapV3Swa
             int256 swapped;
             if (exactAmountOut < 0) {
                 // Need to swap `token0` (the one we received in during liquidation) for `token1` (which is `flashToken`)
-                (swapped, ) = borrower.UNISWAP_POOL().swap(address(this), true, exactAmountOut, TickMath.MIN_SQRT_RATIO + 1, bytes(""));
+                (swapped,) = borrower.UNISWAP_POOL().swap(
+                    address(this), true, exactAmountOut, TickMath.MIN_SQRT_RATIO + 1, bytes("")
+                );
                 require(uint256(swapped) < recovered * slippage / 10_000, "slippage");
             }
 

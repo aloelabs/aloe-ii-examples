@@ -5,7 +5,9 @@ import {Test, console2} from "forge-std/Test.sol";
 
 import {FixedPointMathLib as SoladyMath} from "solady/utils/FixedPointMathLib.sol";
 
-import {BadDebtProcessor, IUniswapV3Pool, Borrower, Lender, ERC20, Prices} from "src/BadDebtProcessor.sol";
+import {Prices} from "aloe-ii-core/libraries/BalanceSheet.sol";
+
+import {BadDebtProcessor, IUniswapV3Pool, Borrower, Lender, ERC20} from "src/BadDebtProcessor.sol";
 
 interface ISuperRegistry {
     function getAddress(bytes32 hash) external view returns (address);
@@ -40,7 +42,12 @@ contract ExampleDistributor {
         token.transfer(to, amount);
     }
 
-    function processBadDebt(Borrower borrower, IUniswapV3Pool flashPool, uint256 minReceived0, uint256 minReceived1) external {
+    function processBadDebt(
+        Borrower borrower,
+        IUniswapV3Pool flashPool,
+        uint256 minReceived0,
+        uint256 minReceived1
+    ) external {
         require(msg.sender == FORM.superRegistry().getAddress(keccak256("EMERGENCY_QUEUE")), "Only EMERGENCY_QUEUE");
 
         Lender lender = FORM.vault();
@@ -84,27 +91,29 @@ contract BadDebtProcessorTest is Test {
         form.emergencyWithdraw(address(distributor), form.vault().balanceOf(address(form)));
         // Redeem shares for the unhealthy borrower's collateral (users can then decide to sell immediately for ETH, or hold and hope value goes back up)
         // Revert if we don't get at least 76,000 BASED tokens.
-        distributor.processBadDebt(borrower, IUniswapV3Pool(0x20E068D76f9E90b90604500B84c7e19dCB923e7e), 8.5 ether, 76_000e18);
+        distributor.processBadDebt(
+            borrower, IUniswapV3Pool(0x20E068D76f9E90b90604500B84c7e19dCB923e7e), 8.5 ether, 76_000e18
+        );
 
         uint256 ethReceived = distributor.token0().balanceOf(address(distributor));
         uint256 basedReceived = distributor.token1().balanceOf(address(distributor));
         console2.log("WETH received:", ethReceived);
         console2.log("BASED received:", basedReceived);
 
-        (Prices memory prices, , ,) = borrower.getPrices(1 << 32);
+        (Prices memory prices,,,) = borrower.getPrices(1 << 32);
         uint256 priceX128 = SoladyMath.fullMulDiv(prices.c, prices.c, 1 << 64);
         uint256 basedReceivedInTermsOfEth = SoladyMath.fullMulDiv(basedReceived, 1 << 128, priceX128);
-        console2.log("Recovery fraction at current price:", (ethReceived + basedReceivedInTermsOfEth) * 10_000 / nominalEthBalance, "/ 10000");
+        console2.log(
+            "Recovery fraction at current price:",
+            (ethReceived + basedReceivedInTermsOfEth) * 10_000 / nominalEthBalance,
+            "/ 10000"
+        );
     }
 
     function testBadDebtProcessor() public {
-        IERC4626Form form = IERC4626Form(
-            0xa5254fF645494d93635360c1cacC375191023a8A
-        );
+        IERC4626Form form = IERC4626Form(0xa5254fF645494d93635360c1cacC375191023a8A);
         ISuperRegistry superRegistry = form.superRegistry();
-        address emergencyAddress = superRegistry.getAddress(
-            keccak256("EMERGENCY_QUEUE")
-        );
+        address emergencyAddress = superRegistry.getAddress(keccak256("EMERGENCY_QUEUE"));
 
         console2.log(emergencyAddress);
 

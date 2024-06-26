@@ -18,9 +18,7 @@ contract DeployScript is Script {
         vm.stopBroadcast();
 
         vm.startBroadcast(vm.envUint("PRIVATE_KEY_OTHER"));
-        new UniswapPositionAppraiser{
-            salt: 0x0000000000000000000000000000000000000000A10EA10EA10EA10EA10EA10E
-        }(
+        new UniswapPositionAppraiser{salt: 0x0000000000000000000000000000000000000000A10EA10EA10EA10EA10EA10E}(
             0x1F98431c8aD98523631AE4a59f267346ea31F984,
             IUniswapPositionNFT(0xC36442b4a4522E871399CD717aBDD847Ab11FE88),
             VolatilityOracle(0x0000000030d51e39a2dDDb5Db50F9d74a289DFc3)

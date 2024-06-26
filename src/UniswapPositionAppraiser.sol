@@ -21,43 +21,24 @@ contract UniswapPositionAppraiser {
 
     VolatilityOracle public immutable ORACLE;
 
-    constructor(
-        address uniswapFactory,
-        IUniswapPositionNFT uniswapNft,
-        VolatilityOracle oracle
-    ) {
+    constructor(address uniswapFactory, IUniswapPositionNFT uniswapNft, VolatilityOracle oracle) {
         UNISWAP_FACTORY = uniswapFactory;
         UNISWAP_NFT = uniswapNft;
         ORACLE = oracle;
     }
 
-    function getFormattedAppraisal(
-        uint256 tokenId
-    )
+    function getFormattedAppraisal(uint256 tokenId)
         external
         view
-        returns (
-            string memory valueInTermsOf0Str,
-            string memory valueInTermsOf1Str
-        )
+        returns (string memory valueInTermsOf0Str, string memory valueInTermsOf1Str)
     {
-        (
-            IUniswapV3Pool pool,
-            ,
-            ,
-            ,
-            ,
-            uint256 valueInTermsOf0,
-            uint256 valueInTermsOf1
-        ) = getAppraisal(tokenId);
+        (IUniswapV3Pool pool,,,,, uint256 valueInTermsOf0, uint256 valueInTermsOf1) = getAppraisal(tokenId);
 
         valueInTermsOf0Str = _toString(valueInTermsOf0, ERC20(pool.token0()));
         valueInTermsOf1Str = _toString(valueInTermsOf1, ERC20(pool.token1()));
     }
 
-    function getAppraisal(
-        uint256 tokenId
-    )
+    function getAppraisal(uint256 tokenId)
         public
         view
         returns (
@@ -92,42 +73,25 @@ contract UniswapPositionAppraiser {
                 positionInfo.tokensOwed1
             ) = UNISWAP_NFT.positions(tokenId);
 
-            pool = Uniswap.computePoolAddress(
-                UNISWAP_FACTORY,
-                token0,
-                token1,
-                fee
-            );
+            pool = Uniswap.computePoolAddress(UNISWAP_FACTORY, token0, token1, fee);
         }
 
         Uniswap.FeeComputationCache memory fcc;
-        (, fcc.currentTick, , , , , ) = pool.slot0();
+        (, fcc.currentTick,,,,,) = pool.slot0();
         fcc.feeGrowthGlobal0X128 = pool.feeGrowthGlobal0X128();
         fcc.feeGrowthGlobal1X128 = pool.feeGrowthGlobal1X128();
 
         (fees0, fees1) = position.fees(pool, positionInfo, fcc);
 
-        (, uint160 sqrtPriceX96, ) = ORACLE.consult(pool, 1 << 32);
-        (amount0, amount1) = position.amountsForLiquidity(
-            sqrtPriceX96,
-            positionInfo.liquidity
-        );
+        (, uint160 sqrtPriceX96,) = ORACLE.consult(pool, 1 << 32);
+        (amount0, amount1) = position.amountsForLiquidity(sqrtPriceX96, positionInfo.liquidity);
 
         uint256 priceX128 = square(sqrtPriceX96);
-        valueInTermsOf1 =
-            amount1 +
-            fees1 +
-            mulDiv128(amount0 + fees0, priceX128);
-        valueInTermsOf0 =
-            amount0 +
-            fees0 +
-            SoladyMath.fullMulDiv(amount1 + fees1, 1 << 128, priceX128);
+        valueInTermsOf1 = amount1 + fees1 + mulDiv128(amount0 + fees0, priceX128);
+        valueInTermsOf0 = amount0 + fees0 + SoladyMath.fullMulDiv(amount1 + fees1, 1 << 128, priceX128);
     }
 
-    function _toString(
-        uint256 amount,
-        ERC20 token
-    ) private view returns (string memory str) {
+    function _toString(uint256 amount, ERC20 token) private view returns (string memory str) {
         str = LibString.toString(amount);
 
         int256 log10 = -int8(token.decimals());
@@ -141,9 +105,7 @@ contract UniswapPositionAppraiser {
         }
 
         uint256 digitsBeforeDecimal = uint256(SoladyMath.max(0, log10)) + 1;
-        str = str.slice(0, digitsBeforeDecimal).concat(".").concat(
-            str.slice(digitsBeforeDecimal)
-        );
+        str = str.slice(0, digitsBeforeDecimal).concat(".").concat(str.slice(digitsBeforeDecimal));
         str = str.concat(" ").concat(token.symbol());
     }
 }
