@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
+import {FixedPointMathLib as SoladyMath} from "solady/utils/FixedPointMathLib.sol";
 import {ERC20, SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 import {IUniswapV3FlashCallback} from "v3-core/contracts/interfaces/callback/IUniswapV3FlashCallback.sol";
 import {IUniswapV3SwapCallback} from "v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
@@ -36,7 +37,7 @@ contract BadDebtProcessor is ILiquidator, IUniswapV3FlashCallback, IUniswapV3Swa
         uint256 withdrawAmount = lender.underlyingBalance(msg.sender);
         // We assume `withdrawAmount > lender.lastBalance()`, otherwise there's no reason to use this fn
         uint256 repayAmount = (withdrawAmount - lender.lastBalance()) * 10_001 / 10_000;
-        uint256 closeFactor = (repayAmount * 10_000) / lender.borrowBalance(address(borrower));
+        uint256 closeFactor = SoladyMath.min((repayAmount * 10_000) / lender.borrowBalance(address(borrower)), 10_000);
 
         bytes memory data = abi.encode(borrower, closeFactor, msg.sender, repayAmount, slippage);
         if (address(lender.asset()) == flashPool.token0()) {
